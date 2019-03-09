@@ -45,7 +45,7 @@ class Robot(object):
             pass
         else:
             # TODO 2. Update parameters when learning
-            self.epsilon = 0.6
+            self.epsilon -= 0.01
             pass
 
         return self.epsilon
@@ -69,19 +69,13 @@ class Robot(object):
         # If Qtable[state] already exits, then do
         # not change it.
         if state not in self.Qtable:
-            print("not in Qtable")
             data = {}
-            data['u'] = self.maze.move_robot('u')
-            self.maze.move_robot('d')
-            data['d'] = self.maze.move_robot('d')
-            self.maze.move_robot('u')
-            data['l'] = self.maze.move_robot('l')
-            self.maze.move_robot('r')
-            data['r'] = self.maze.move_robot('r')
-            self.maze.move_robot('l')
+            data['u'] = 0    
+            data['d'] = 0
+            data['l'] = 0
+            data['r'] = 0
             self.Qtable[state] = data
-             
-        
+   
 
     def choose_action(self):
         """
@@ -92,17 +86,18 @@ class Robot(object):
             # hint: generate a random number, and compare
             # it with epsilon
             value = random.uniform(0,1)
-            print("random select value is:",value)
+            #print("random select value is:",value)
             if value < self.epsilon:
-                return False
-            else:
                 return True
+            else:
+                return False
         state = self.maze.sense_robot()
         if self.learning:
             if is_random_exploration():
                 # TODO 6. Return random choose aciton
                 actions = ['u','r','d','l']
                 max_index = actions.index(max(self.Qtable[state], key=self.Qtable[state].get))
+                #print("max index is : ",max_index)
                 policys = np.ones(4) * self.epsilon / 4
                 policys[max_index] = 1 - self.epsilon + self.epsilon / 4
                 self.action = np.random.choice(actions,p=policys)
@@ -139,8 +134,8 @@ class Robot(object):
             actions = ['u','r','d','l']
             maxa = actions.index(max(self.Qtable[next_state], key=self.Qtable[next_state].get))
             next_action = actions[maxa]
-            print("update Qtable max next action is:",next_action)
-            self.Qtable[self.state][action] = self.Qtable[self.state][action] + self.alpha*(r + self.Qtable[next_state][next_action] - self.Qtable[self.state][action])
+            #print("update Qtable max next action is:",next_action)
+            self.Qtable[self.state][action] = self.Qtable[self.state][action] + self.alpha*(r + self.gamma * self.Qtable[next_state][next_action] - self.Qtable[self.state][action])
             
 
     def update(self):
