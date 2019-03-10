@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 class Robot(object):
 
     def __init__(self, maze, alpha=0.5, gamma=0.9, epsilon0=0.5):
@@ -16,6 +17,7 @@ class Robot(object):
         self.epsilon0 = epsilon0
         self.epsilon = epsilon0
         self.t = 0
+        self.a = math.pi/2/3000
         self.Qtable = {}
         self.reset()
 
@@ -46,7 +48,11 @@ class Robot(object):
         else:
             # TODO 2. Update parameters when learning
             self.epsilon -= 0.01
-            pass
+            self.t += 1
+            if self.epsilon <= 0:
+                self.epsilon = 0
+            else:
+                self.epsilon = 0.5*math.cos(self.a * self.t)
 
         return self.epsilon
 
